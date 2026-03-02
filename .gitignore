@@ -1,0 +1,5 @@
+bin/
+vendor/
+*.exe
+.claude/
+CLAUDE.md
