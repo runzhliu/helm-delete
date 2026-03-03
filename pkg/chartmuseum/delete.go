@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"path"
 	"strings"
 )
 
@@ -23,7 +22,10 @@ func (c *Client) DeleteChartVersion(name, version string) error {
 	}
 
 	contextPath := strings.TrimSuffix(c.opts.contextPath, "/")
-	u.Path = path.Join(u.Path, contextPath, "api", "charts", name, version)
+	u.Path, err = url.JoinPath(u.Path, contextPath, "api", "charts", url.PathEscape(name), url.PathEscape(version))
+	if err != nil {
+		return fmt.Errorf("failed to join url path: %w", err)
+	}
 
 	req, err := http.NewRequest(http.MethodDelete, u.String(), nil)
 	if err != nil {
@@ -32,11 +34,13 @@ func (c *Client) DeleteChartVersion(name, version string) error {
 
 	setAuth(req, c.opts)
 
-	resp, err := c.Do(req)
+	resp, err := c.Client.Do(req) //nolint:staticcheck
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

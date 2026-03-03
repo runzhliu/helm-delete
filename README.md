@@ -1,18 +1,35 @@
 # helm cm-delete
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Go Report Card](https://goreportcard.com/badge/github.com/runzhliu/helm-delete)](https://goreportcard.com/report/github.com/runzhliu/helm-delete)
+
 A Helm plugin to delete chart versions from [ChartMuseum](https://github.com/helm/chartmuseum).
 
 This plugin is the `DELETE` counterpart of [helm cm-push](https://github.com/chartmuseum/helm-push).
 
+## Table of Contents
+
+- [Install](#install)
+- [Usage](#usage)
+  - [Examples](#examples)
+- [Flags](#flags)
+- [Environment Variables](#environment-variables)
+- [ChartMuseum API](#chartmuseum-api)
+- [Testing](#testing)
+- [Development and Building](#development-and-building)
+- [License](#license)
+
 ## Install
 
+Install the plugin using Helm's plugin manager:
+
 ```bash
-helm plugin install https://github.com/chartmuseum/helm-cm-delete
+helm plugin install https://github.com/runzhliu/helm-delete
 ```
 
 ## Usage
 
-```
+```bash
 helm cm-delete [NAME] [VERSION] [REPO]
 ```
 
@@ -52,7 +69,7 @@ helm cm-delete mychart 1.2.3 myrepo --context-path /charts
 | `--insecure` | `-i` | Skip TLS certificate verification |
 | `--timeout` | | Request timeout in seconds (default: 30) |
 
-## Environment variables
+## Environment Variables
 
 The plugin reads the same environment variables as `helm cm-push` for consistency:
 
@@ -66,18 +83,36 @@ The plugin reads the same environment variables as `helm cm-push` for consistenc
 
 ## ChartMuseum API
 
-The plugin calls `DELETE /api/charts/{name}/{version}` on the target ChartMuseum instance. Make sure `ALLOW_OVERWRITE` or `DISABLE_DELETE` is not set on the server side if you encounter 403 errors.
+The plugin calls `DELETE /api/charts/{name}/{version}` on the target ChartMuseum instance. 
+Make sure `ALLOW_OVERWRITE` or `DISABLE_DELETE` is not set on the server side if you encounter `403` errors.
 
-## Development
+## Testing
+
+To run the unit tests for this plugin, make sure you have Go installed, then execute:
+
+```bash
+make test
+```
+
+For formatting and linting:
+
+```bash
+make fmt
+make lint
+```
+
+## Development and Building
+
+If you wish to modify the plugin or build it locally from the source code:
+
+1. Clone the repository
+2. Build the binary using Make:
 
 ```bash
 # Build locally
 make build
 
-# Run tests
-make test
-
-# Install from local source
+# Install from local source (avoids downloading the official release binary)
 HELM_CM_DELETE_PLUGIN_NO_INSTALL_HOOK=1 make install
 ```
 

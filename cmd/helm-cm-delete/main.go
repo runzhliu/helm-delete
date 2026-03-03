@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/chartmuseum/helm-cm-delete/pkg/chartmuseum"
-	helmutil "github.com/chartmuseum/helm-cm-delete/pkg/helm"
+	"github.com/runzhliu/helm-delete/pkg/chartmuseum"
+	helmutil "github.com/runzhliu/helm-delete/pkg/helm"
 	"github.com/spf13/cobra"
 	"helm.sh/helm/v3/pkg/cli"
 )
@@ -49,7 +49,7 @@ Examples:
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			d.setFieldsFromEnv()
-			return d.delete(args[0], args[1], args[2])
+			return d.delete(cmd, args[0], args[1], args[2])
 		},
 		SilenceUsage: true,
 	}
@@ -89,7 +89,7 @@ func (d *deleteCmd) setFieldsFromEnv() {
 	}
 }
 
-func (d *deleteCmd) delete(name, version, repoArg string) error {
+func (d *deleteCmd) delete(cmd *cobra.Command, name, version, repoArg string) error {
 	repoURL, err := d.resolveRepoURL(repoArg)
 	if err != nil {
 		return err
@@ -112,13 +112,13 @@ func (d *deleteCmd) delete(name, version, repoArg string) error {
 		return err
 	}
 
-	fmt.Printf("Deleting %s-%s from %s...\n", name, version, repoURL)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Deleting %s-%s from %s...\n", name, version, repoURL)
 
 	if err := client.DeleteChartVersion(name, version); err != nil {
 		return err
 	}
 
-	fmt.Printf("Successfully deleted %s-%s\n", name, version)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Successfully deleted %s-%s\n", name, version)
 	return nil
 }
 

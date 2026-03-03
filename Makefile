@@ -8,7 +8,7 @@ export GO111MODULE := on
 export CGO_ENABLED := 0
 
 .PHONY: all build build-linux-amd64 build-linux-arm64 build-darwin-amd64 build-darwin-arm64 build-windows-amd64 \
-        clean test install remove
+        clean test lint fmt install remove
 
 all: build
 
@@ -36,7 +36,13 @@ clean:
 	rm -rf bin/
 
 test:
-	go test ./...
+	go test -v ./...
+
+lint:
+	golangci-lint run ./...
+
+fmt:
+	go fmt ./...
 
 install: build
 	HELM_CM_DELETE_PLUGIN_NO_INSTALL_HOOK=1 helm plugin install .

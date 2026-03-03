@@ -1,6 +1,6 @@
-module github.com/chartmuseum/helm-cm-delete
+module github.com/runzhliu/helm-delete
 
-go 1.22
+go 1.24
 
 require (
 	github.com/spf13/cobra v1.8.0

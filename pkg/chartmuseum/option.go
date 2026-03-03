@@ -4,16 +4,16 @@ package chartmuseum
 type Option func(*options)
 
 type options struct {
-	url              string
-	username         string
-	password         string
-	accessToken      string
-	authHeader       string
-	contextPath      string
-	timeout          int64
-	caFile           string
-	certFile         string
-	keyFile          string
+	url                string
+	username           string
+	password           string
+	accessToken        string
+	authHeader         string
+	contextPath        string
+	timeout            int64
+	caFile             string
+	certFile           string
+	keyFile            string
 	insecureSkipVerify bool
 }
 

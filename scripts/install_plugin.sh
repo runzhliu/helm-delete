@@ -44,7 +44,7 @@ if [ "${OS}" = "windows" ]; then
     FILENAME="${FILENAME}.exe"
 fi
 
-DOWNLOAD_URL="https://github.com/chartmuseum/helm-cm-delete/releases/download/v${VERSION}/${FILENAME}.tar.gz"
+DOWNLOAD_URL="https://github.com/runzhliu/helm-delete/releases/download/v${VERSION}/${FILENAME}.tar.gz"
 
 mkdir -p "${HELM_PLUGIN_DIR}/bin"
 cd "${HELM_PLUGIN_DIR}/bin"
