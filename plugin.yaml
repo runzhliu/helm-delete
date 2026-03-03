@@ -1,5 +1,5 @@
 name: "cm-delete"
-version: "0.0.1"
+version: "0.0.2"
 usage: "Delete chart from ChartMuseum"
 description: "Delete a specific version of a chart from a ChartMuseum repository"
 command: "$HELM_PLUGIN_DIR/bin/helm-cm-delete"
