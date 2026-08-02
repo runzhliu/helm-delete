@@ -78,10 +78,15 @@ grep -q '^apiVersion: v1$' "${PLUGIN_DIR}/plugin.yaml"
 grep -q '^version: "0.0.3"$' "${PLUGIN_DIR}/plugin.yaml"
 
 if command -v helm > /dev/null 2>&1; then
-	mkdir -p "${TEST_DIR}/helm-data/plugins"
-	ln -s "${PLUGIN_DIR}" "${TEST_DIR}/helm-data/plugins/helm-delete"
-	HELM_DATA_HOME="${TEST_DIR}/helm-data" helm plugin list | grep -q 'cm-delete.*v1'
-	HELM_DATA_HOME="${TEST_DIR}/helm-data" helm cm-delete --help | grep -q 'helm-cm-delete test binary'
+	HELM_MAJOR=$(helm version --short 2>/dev/null | sed -n 's/^v\([0-9][0-9]*\).*/\1/p')
+	if [ "${HELM_MAJOR}" = "4" ]; then
+		mkdir -p "${TEST_DIR}/helm-data/plugins"
+		ln -s "${PLUGIN_DIR}" "${TEST_DIR}/helm-data/plugins/helm-delete"
+		HELM_DATA_HOME="${TEST_DIR}/helm-data" helm plugin list | grep -q 'cm-delete.*v1'
+		HELM_DATA_HOME="${TEST_DIR}/helm-data" helm cm-delete --help | grep -q 'helm-cm-delete test binary'
+	else
+		echo "Skipping Helm 4 runtime test (found Helm ${HELM_MAJOR:-unknown})."
+	fi
 fi
 
 echo "Install script test passed."
