@@ -27,11 +27,22 @@ Install the plugin using Helm's plugin manager:
 helm plugin install https://github.com/runzhliu/helm-delete
 ```
 
+Both Helm 3 and Helm 4 are supported. If a previous installation failed and
+left an incomplete plugin directory behind, remove it before retrying:
+
+```bash
+helm plugin remove cm-delete
+helm plugin install https://github.com/runzhliu/helm-delete
+```
+
 ## Usage
 
 ```bash
 helm cm-delete [NAME] [VERSION] [REPO]
 ```
+
+`VERSION` is mandatory. The plugin never assumes or automatically deletes the
+latest chart version when it is omitted.
 
 `REPO` can be a configured repository name (added via `helm repo add`) or a direct URL.
 

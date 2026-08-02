@@ -1,10 +1,33 @@
 package main
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
+
+func TestDeleteRequiresExplicitVersion(t *testing.T) {
+	cmd := newDeleteCmd()
+	cmd.SetArgs([]string{"mychart", "myrepo"})
+	cmd.SilenceErrors = true
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetErr(&bytes.Buffer{})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("Expected an error when VERSION is omitted")
+	}
+
+	message := err.Error()
+	if !strings.Contains(message, "VERSION must be specified explicitly") {
+		t.Fatalf("Expected explicit version guidance, got %q", message)
+	}
+	if !strings.Contains(message, "latest version is never selected automatically") {
+		t.Fatalf("Expected latest-version safety guidance, got %q", message)
+	}
+}
 
 func TestSetFieldsFromEnv(t *testing.T) {
 	// Save the original environment values to restore later

@@ -41,12 +41,14 @@ func newDeleteCmd() *cobra.Command {
 		Short: "Delete a chart version from ChartMuseum",
 		Long: `Delete a specific version of a Helm chart from a ChartMuseum repository.
 
+VERSION is required. This command never defaults to deleting the latest version.
+
 REPO may be a repository name (as configured via 'helm repo add') or a direct URL.
 
 Examples:
   helm cm-delete mychart 1.2.3 myrepo
   helm cm-delete mychart 1.2.3 https://chartmuseum.example.com`,
-		Args: cobra.ExactArgs(3),
+		Args: requireDeleteArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			d.setFieldsFromEnv()
 			return d.delete(cmd, args[0], args[1], args[2])
@@ -67,6 +69,15 @@ Examples:
 	f.Int64Var(&d.timeout, "timeout", defaultTimeout, "Request timeout in seconds")
 
 	return cmd
+}
+
+func requireDeleteArgs(_ *cobra.Command, args []string) error {
+	if len(args) != 3 {
+		return fmt.Errorf(
+			"requires NAME, VERSION, and REPO; VERSION must be specified explicitly (the latest version is never selected automatically)",
+		)
+	}
+	return nil
 }
 
 // setFieldsFromEnv populates unset fields from environment variables,

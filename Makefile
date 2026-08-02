@@ -37,6 +37,7 @@ clean:
 
 test:
 	go test -v ./...
+	sh scripts/install_plugin_test.sh
 
 lint:
 	golangci-lint run ./...
