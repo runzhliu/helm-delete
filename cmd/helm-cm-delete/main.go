@@ -37,7 +37,7 @@ func newDeleteCmd() *cobra.Command {
 	d := &deleteCmd{}
 
 	cmd := &cobra.Command{
-		Use:   "helm cm-delete [NAME] [VERSION] [REPO]",
+		Use:   "helm cm-delete NAME VERSION REPO",
 		Short: "Delete a chart version from ChartMuseum",
 		Long: `Delete a specific version of a Helm chart from a ChartMuseum repository.
 
@@ -50,6 +50,9 @@ Examples:
   helm cm-delete mychart 1.2.3 https://chartmuseum.example.com`,
 		Args: requireDeleteArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
 			d.setFieldsFromEnv()
 			return d.delete(cmd, args[0], args[1], args[2])
 		},
@@ -72,6 +75,9 @@ Examples:
 }
 
 func requireDeleteArgs(_ *cobra.Command, args []string) error {
+	if len(args) == 0 {
+		return nil
+	}
 	if len(args) != 3 {
 		return fmt.Errorf(
 			"requires NAME, VERSION, and REPO; VERSION must be specified explicitly (the latest version is never selected automatically)",

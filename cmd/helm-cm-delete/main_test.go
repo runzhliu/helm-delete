@@ -8,6 +8,27 @@ import (
 	"testing"
 )
 
+func TestDeleteWithoutArgsShowsHelp(t *testing.T) {
+	cmd := newDeleteCmd()
+	cmd.SetArgs([]string{})
+	cmd.SilenceErrors = true
+	output := &bytes.Buffer{}
+	cmd.SetOut(output)
+	cmd.SetErr(output)
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Expected help without an error, got %v", err)
+	}
+
+	help := output.String()
+	if !strings.Contains(help, "VERSION is required") {
+		t.Fatalf("Expected version guidance in help, got %q", help)
+	}
+	if !strings.Contains(help, "helm cm-delete NAME VERSION REPO") {
+		t.Fatalf("Expected required argument usage in help, got %q", help)
+	}
+}
+
 func TestDeleteRequiresExplicitVersion(t *testing.T) {
 	cmd := newDeleteCmd()
 	cmd.SetArgs([]string{"mychart", "myrepo"})

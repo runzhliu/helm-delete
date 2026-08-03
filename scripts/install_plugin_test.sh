@@ -72,7 +72,7 @@ esac
 
 export TEST_ARCHIVE="${TEST_DIR}/release.tar.gz"
 export TEST_CURL_STATE="${TEST_DIR}/curl-attempted"
-export TEST_DOWNLOAD_URL="https://github.com/runzhliu/helm-delete/releases/download/v0.0.4/helm-cm-delete_${EXPECTED_OS}_${EXPECTED_ARCH}.tar.gz"
+export TEST_DOWNLOAD_URL="https://github.com/runzhliu/helm-delete/releases/download/v0.0.5/helm-cm-delete_${EXPECTED_OS}_${EXPECTED_ARCH}.tar.gz"
 
 PATH="${TEST_DIR}/fake-bin:${PATH}" \
 	HELM_PLUGIN_DIR="${PLUGIN_DIR}" \
@@ -83,7 +83,7 @@ PATH="${TEST_DIR}/fake-bin:${PATH}" \
 test -x "${PLUGIN_DIR}/bin/helm-cm-delete"
 cmp "${TEST_DIR}/archive/helm-cm-delete" "${PLUGIN_DIR}/bin/helm-cm-delete"
 grep -q '^apiVersion: v1$' "${PLUGIN_DIR}/plugin.yaml"
-grep -q '^version: "0.0.4"$' "${PLUGIN_DIR}/plugin.yaml"
+grep -q '^version: "0.0.5"$' "${PLUGIN_DIR}/plugin.yaml"
 
 if command -v helm > /dev/null 2>&1; then
 	HELM_MAJOR=$(helm version --short 2>/dev/null | sed -n 's/^v\([0-9][0-9]*\).*/\1/p')

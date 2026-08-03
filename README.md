@@ -38,7 +38,7 @@ helm plugin install https://github.com/runzhliu/helm-delete
 ## Usage
 
 ```bash
-helm cm-delete [NAME] [VERSION] [REPO]
+helm cm-delete NAME VERSION REPO
 ```
 
 `VERSION` is mandatory. The plugin never assumes or automatically deletes the
