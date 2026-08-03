@@ -66,10 +66,36 @@ mkdir -p "${EXTRACT_DIR}"
 
 echo "Downloading ${BINARY} v${VERSION} for ${OS}/${ARCH}..."
 
+MAX_DOWNLOAD_ATTEMPTS="${HELM_CM_DELETE_DOWNLOAD_ATTEMPTS:-5}"
+RETRY_DELAY="${HELM_CM_DELETE_RETRY_DELAY:-2}"
+case "${MAX_DOWNLOAD_ATTEMPTS}:${RETRY_DELAY}" in
+    *[!0-9:]*|:*|*:)
+        echo "Error: download retry settings must be non-negative integers." >&2
+        exit 1
+        ;;
+esac
+
+download_attempt=1
 if command -v curl > /dev/null 2>&1; then
-    curl -fsSL "${DOWNLOAD_URL}" -o "${ARCHIVE_PATH}"
+    while ! curl -fL -C - "${DOWNLOAD_URL}" -o "${ARCHIVE_PATH}"; do
+        if [ "${download_attempt}" -ge "${MAX_DOWNLOAD_ATTEMPTS}" ]; then
+            echo "Error: failed to download ${DOWNLOAD_URL} after ${download_attempt} attempts." >&2
+            exit 1
+        fi
+        download_attempt=$((download_attempt + 1))
+        echo "Download interrupted; retrying (${download_attempt}/${MAX_DOWNLOAD_ATTEMPTS})..." >&2
+        sleep "${RETRY_DELAY}"
+    done
 elif command -v wget > /dev/null 2>&1; then
-    wget -q "${DOWNLOAD_URL}" -O "${ARCHIVE_PATH}"
+    while ! wget -c -q "${DOWNLOAD_URL}" -O "${ARCHIVE_PATH}"; do
+        if [ "${download_attempt}" -ge "${MAX_DOWNLOAD_ATTEMPTS}" ]; then
+            echo "Error: failed to download ${DOWNLOAD_URL} after ${download_attempt} attempts." >&2
+            exit 1
+        fi
+        download_attempt=$((download_attempt + 1))
+        echo "Download interrupted; retrying (${download_attempt}/${MAX_DOWNLOAD_ATTEMPTS})..." >&2
+        sleep "${RETRY_DELAY}"
+    done
 else
     echo "Error: curl or wget is required to download the plugin binary."
     exit 1
