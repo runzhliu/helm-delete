@@ -13,7 +13,6 @@ PLUGIN_DIR="${TEST_DIR}/plugin"
 mkdir -p "${PLUGIN_DIR}/scripts" "${TEST_DIR}/archive" "${TEST_DIR}/fake-bin"
 cp "${ROOT_DIR}/plugin.yaml" "${PLUGIN_DIR}/plugin.yaml"
 cp "${ROOT_DIR}/scripts/install_plugin.sh" "${PLUGIN_DIR}/scripts/install_plugin.sh"
-cp "${ROOT_DIR}/scripts/plugin-helm4.yaml.tpl" "${PLUGIN_DIR}/scripts/plugin-helm4.yaml.tpl"
 
 # Build a release-shaped fixture without making a network request.
 printf '#!/bin/sh\necho helm-cm-delete test binary\n' > "${TEST_DIR}/archive/helm-cm-delete"
@@ -72,29 +71,26 @@ esac
 
 export TEST_ARCHIVE="${TEST_DIR}/release.tar.gz"
 export TEST_CURL_STATE="${TEST_DIR}/curl-attempted"
-export TEST_DOWNLOAD_URL="https://github.com/runzhliu/helm-delete/releases/download/v0.0.5/helm-cm-delete_${EXPECTED_OS}_${EXPECTED_ARCH}.tar.gz"
+export TEST_DOWNLOAD_URL="https://github.com/runzhliu/helm-delete/releases/download/v0.0.6/helm-cm-delete_${EXPECTED_OS}_${EXPECTED_ARCH}.tar.gz"
 
 PATH="${TEST_DIR}/fake-bin:${PATH}" \
 	HELM_PLUGIN_DIR="${PLUGIN_DIR}" \
-	HELM_MAJOR_VERSION=4 \
 	HELM_CM_DELETE_RETRY_DELAY=0 \
 	sh "${PLUGIN_DIR}/scripts/install_plugin.sh"
 
 test -x "${PLUGIN_DIR}/bin/helm-cm-delete"
 cmp "${TEST_DIR}/archive/helm-cm-delete" "${PLUGIN_DIR}/bin/helm-cm-delete"
-grep -q '^apiVersion: v1$' "${PLUGIN_DIR}/plugin.yaml"
-grep -q '^version: "0.0.5"$' "${PLUGIN_DIR}/plugin.yaml"
+if grep -q '^apiVersion:' "${PLUGIN_DIR}/plugin.yaml"; then
+	echo "installer must not rewrite the legacy plugin manifest" >&2
+	exit 1
+fi
+grep -q '^version: "0.0.6"$' "${PLUGIN_DIR}/plugin.yaml"
 
 if command -v helm > /dev/null 2>&1; then
-	HELM_MAJOR=$(helm version --short 2>/dev/null | sed -n 's/^v\([0-9][0-9]*\).*/\1/p')
-	if [ "${HELM_MAJOR}" = "4" ]; then
-		mkdir -p "${TEST_DIR}/helm-data/plugins"
-		ln -s "${PLUGIN_DIR}" "${TEST_DIR}/helm-data/plugins/helm-delete"
-		HELM_DATA_HOME="${TEST_DIR}/helm-data" helm plugin list | grep -q 'cm-delete.*v1'
-		HELM_DATA_HOME="${TEST_DIR}/helm-data" helm cm-delete --help | grep -q 'helm-cm-delete test binary'
-	else
-		echo "Skipping Helm 4 runtime test (found Helm ${HELM_MAJOR:-unknown})."
-	fi
+	mkdir -p "${TEST_DIR}/helm-data/plugins"
+	ln -s "${PLUGIN_DIR}" "${TEST_DIR}/helm-data/plugins/helm-delete"
+	HELM_DATA_HOME="${TEST_DIR}/helm-data" helm plugin list | grep -q 'cm-delete'
+	HELM_DATA_HOME="${TEST_DIR}/helm-data" helm cm-delete --help | grep -q 'helm-cm-delete test binary'
 fi
 
 echo "Install script test passed."

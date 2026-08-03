@@ -117,18 +117,4 @@ mkdir -p "${PLUGIN_DIR}/bin"
 mv "${EXTRACT_DIR}/${INSTALLED_BINARY}" "${PLUGIN_DIR}/bin/${INSTALLED_BINARY}"
 chmod +x "${PLUGIN_DIR}/bin/${INSTALLED_BINARY}"
 
-# Helm 4 understands the legacy Helm 3 manifest, but reports it as legacy.
-# Once the install hook has run, switch to the versioned Helm 4 manifest.
-if [ -n "${HELM_MAJOR_VERSION:-}" ]; then
-    HELM_MAJOR="${HELM_MAJOR_VERSION}"
-else
-    HELM_MAJOR=$("${HELM_BIN:-helm}" version --short 2>/dev/null | sed -n 's/^v\([0-9][0-9]*\).*/\1/p')
-fi
-
-if [ "${HELM_MAJOR}" = "4" ]; then
-    sed "s/@VERSION@/${VERSION}/g" \
-        "${PLUGIN_DIR}/scripts/plugin-helm4.yaml.tpl" > "${TMP_DIR}/plugin.yaml"
-    mv "${TMP_DIR}/plugin.yaml" "${PLUGIN_DIR}/plugin.yaml"
-fi
-
 echo "Installed ${PLUGIN_NAME} plugin successfully."
